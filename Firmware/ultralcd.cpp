@@ -97,6 +97,7 @@ float pid_temp = DEFAULT_PID_TEMP;
 static bool forceMenuExpire = false;
 static bool lcd_autoDeplete;
 
+bool bearCalibration = eeprom_read_byte((unsigned char *)EEPROM_BEARMODE);
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
@@ -2139,7 +2140,8 @@ static void lcd_support_menu()
   MENU_ITEM_BACK_P(PSTR("Firmware:"));
   MENU_ITEM_BACK_P(PSTR(" " FW_VERSION_FULL));
 #if (FW_DEV_VERSION != FW_VERSION_GOLD) && (FW_DEV_VERSION != FW_VERSION_RC)
-  MENU_ITEM_BACK_P(PSTR(" repo " FW_REPOSITORY));
+  MENU_ITEM_BACK_P(PSTR(" " FW_REPOSITORY));
+  MENU_ITEM_BACK_P(PSTR(" Beta Firmware."));
 #endif
   // Ideally this block would be optimized out by the compiler.
 /*  const uint8_t fw_string_len = strlen_P(FW_VERSION_STR_P());
@@ -2156,6 +2158,9 @@ static void lcd_support_menu()
   MENU_ITEM_BACK_P(PSTR(FILAMENT_SIZE));
   MENU_ITEM_BACK_P(PSTR(ELECTRONICS));
   MENU_ITEM_BACK_P(PSTR(NOZZLE_TYPE));
+  if (eeprom_read_byte((unsigned char *)EEPROM_BEARMODE) == 1) {
+    MENU_ITEM_BACK_P(_i("Bear 0.7.0"));
+  }
   MENU_ITEM_BACK_P(STR_SEPARATOR);
   MENU_ITEM_BACK_P(_i("Date:"));////MSG_DATE c=17 r=1
   MENU_ITEM_BACK_P(PSTR(__DATE__));
@@ -3514,6 +3519,9 @@ calibrated:
 	if ((PRINTER_TYPE == PRINTER_MK25) || (PRINTER_TYPE == PRINTER_MK2) || (PRINTER_TYPE == PRINTER_MK2_SNMM)) {
 		current_position[Z_AXIS] = Z_MAX_POS-3.f;
 	}
+    else if (bearCalibration == true) {
+        current_position[Z_AXIS] = Z_MAX_POS-3.f;
+    }
 	else {
 		current_position[Z_AXIS] = Z_MAX_POS+4.f;
 	}
@@ -4655,6 +4663,13 @@ void lcd_calibrate_pinda() {
 	lcd_return_to_status();
 }
 
+void set_bear() {
+     bearCalibration == eeprom_read_byte((unsigned char *)EEPROM_BEARMODE);
+    if(bearCalibration == 1) bearCalibration = 0;
+    else bearCalibration = 1;
+    eeprom_update_byte((unsigned char *)EEPROM_BEARMODE, bearCalibration);
+}
+
 #ifndef SNMM
 
 /*void lcd_calibrate_extruder() {
@@ -5719,6 +5734,11 @@ void lcd_hw_setup_menu(void)                      // can not be "static"
     MENU_ITEM_SUBMENU_P(_i("Steel sheets"), sheets_menu);
     SETTINGS_NOZZLE;
     MENU_ITEM_SUBMENU_P(_i("Checks"), lcd_checking_menu);
+     if (bearCalibration == 1) {
+        MENU_ITEM_FUNCTION_P(_i("Bear Cal.    [on]"), set_bear);
+    } else {
+        MENU_ITEM_FUNCTION_P(_i("Bear Cal.   [off]"), set_bear);
+    }
 
 #ifdef IR_SENSOR_ANALOG
     FSENSOR_ACTION_NA;
