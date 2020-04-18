@@ -146,3 +146,4 @@ out/reprap_rambo/src/util.cpp.o
 out/reprap_rambo/src/vector_3.cpp.o
 out/reprap_rambo/src/w25x20cl.c.o
 out/reprap_rambo/src/xyzcal.cpp.o
+out/reprap_rambo/MK3S_3.9.0_invertedIR.hex
