@@ -170,7 +170,7 @@ bool check_for_ir_sensor()
 
 	bool detected = false;
 	//if IR_SENSOR_PIN input is low and pat9125sensor is not present we detected idler sensor
-	if ((PIN_GET(IR_SENSOR_PIN) == 0) 
+	if ((PIN_GET(IR_SENSOR_PIN) == 1) //was 0 is 1
 #ifdef PAT9125
 		&& fsensor_not_responding
 #endif //PAT9125
@@ -363,7 +363,7 @@ void mmu_loop(void)
 	case S::GetFinda: //response to command P0
         if (mmu_idl_sens)
         {
-            if (PIN_GET(IR_SENSOR_PIN) == 0 && mmu_loading_flag)
+            if (PIN_GET(IR_SENSOR_PIN) == 1 && mmu_loading_flag) //was 0 is 1
             {
 #ifdef MMU_DEBUG
                 printf_P(PSTR("MMU <= 'A'\n"));
@@ -406,7 +406,7 @@ void mmu_loop(void)
 	case S::WaitCmd: //response to mmu commands
         if (mmu_idl_sens)
         {
-            if (PIN_GET(IR_SENSOR_PIN) == 0 && mmu_loading_flag)
+            if (PIN_GET(IR_SENSOR_PIN) == 1 && mmu_loading_flag) //was 0 is 1
             {
                 DEBUG_PRINTF_P(PSTR("MMU <= 'A'\n"));
                 mmu_puts_P(PSTR("A\n")); //send 'abort' request
@@ -596,10 +596,10 @@ bool mmu_get_response(uint8_t move)
 			    mmu_loading_flag = true;
 				if (can_extrude()) mmu_load_step();
 				//don't rely on "ok" signal from mmu unit; if filament detected by idler sensor during loading stop loading movements to prevent infinite loading
-				if (PIN_GET(IR_SENSOR_PIN) == 0) move = MMU_NO_MOVE;
+				if (PIN_GET(IR_SENSOR_PIN) == 1) move = MMU_NO_MOVE; //was 0 is 1
 				break;
 			case MMU_UNLOAD_MOVE:
-				if (PIN_GET(IR_SENSOR_PIN) == 0) //filament is still detected by idler sensor, printer helps with unlading 
+				if (PIN_GET(IR_SENSOR_PIN) == 1) //filament is still detected by idler sensor, printer helps with unlading //was 0 is 1
 				{
 				    if (can_extrude())
 				    {
@@ -617,7 +617,7 @@ bool mmu_get_response(uint8_t move)
 				}
 				break;
 			case MMU_TCODE_MOVE: //first do unload and then continue with infinite loading movements
-				if (PIN_GET(IR_SENSOR_PIN) == 0) //filament detected by idler sensor, we must unload first 
+				if (PIN_GET(IR_SENSOR_PIN) == 1) //filament detected by idler sensor, we must unload first //was 0 is 1
 				{
                     if (can_extrude())
                     {
@@ -1460,7 +1460,7 @@ static bool can_load()
         current_position[E_AXIS] -= e_increment;
         plan_buffer_line_curposXYZE(MMU_LOAD_FEEDRATE, active_extruder);
         st_synchronize();
-        if(0 == PIN_GET(IR_SENSOR_PIN))
+        if(1 == PIN_GET(IR_SENSOR_PIN)) //was 0 is 1
         {
             ++filament_detected_count;
             DEBUG_PUTCHAR('O');
@@ -1491,7 +1491,7 @@ static bool load_more()
 {
     for (uint8_t i = 0; i < MMU_IDLER_SENSOR_ATTEMPTS_NR; i++)
     {
-        if (PIN_GET(IR_SENSOR_PIN) == 0) return true;
+        if (PIN_GET(IR_SENSOR_PIN) == 1) return true; //was 0 is 1
         DEBUG_PRINTF_P(PSTR("Additional load attempt nr. %d\n"), i);
         mmu_command(MmuCmd::C0);
         manage_response(true, true, MMU_LOAD_MOVE);

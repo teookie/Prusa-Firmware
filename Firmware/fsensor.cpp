@@ -326,7 +326,7 @@ bool fsensor_check_autoload(void)
 	if (!fsensor_enabled) return false;
 	if (!fsensor_autoload_enabled) return false;
 	if (ir_sensor_detected) {
-		if (digitalRead(IR_SENSOR_PIN) == 1) {
+		if (digitalRead(IR_SENSOR_PIN) == 0) { //was 1 is 0
 			fsensor_watch_autoload = true;
 		}
 		else if (fsensor_watch_autoload == true) {
@@ -660,7 +660,7 @@ void fsensor_update(void)
 #else //PAT9125
 		if (CHECK_FSENSOR && ir_sensor_detected)
         {
-               if(digitalRead(IR_SENSOR_PIN))
+               if(!digitalRead(IR_SENSOR_PIN)) //was digitalRead is !digitalRead
                {                                  // IR_SENSOR_PIN ~ H
 #ifdef IR_SENSOR_ANALOG
                     if(!bIRsensorStateFlag)

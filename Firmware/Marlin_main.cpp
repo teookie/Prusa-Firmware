@@ -874,7 +874,7 @@ static void check_if_fw_is_on_right_printer(){
 
     #ifdef PAT9125
       //will return 1 only if IR can detect filament in bondtech extruder so this may fail even when we have IR sensor
-      const uint8_t ir_detected = !(PIN_GET(IR_SENSOR_PIN));
+      const uint8_t ir_detected = (PIN_GET(IR_SENSOR_PIN)); //was !(PIN_GET is (PIN_GET
       if (ir_detected){
         lcd_show_fullscreen_message_and_wait_P(_i("MK3 firmware detected on MK3S printer"));}
     #endif //PAT9125
